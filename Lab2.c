@@ -6,19 +6,6 @@
 #include <pthread.h> 
 #include <time.h>
 
-#define MAX_QUEUE_lENGTH = 10
-
-double exponGenerator(double mean);
-
-int randomSelection(int key, struct Queue* q1, struct Queue* q2);
-
-int minQueue(int key, struct Queue* q1, struct Queue* q2);
-
-void packetAssignment(int select, double param, struct Queue* q1, struct Queue* q2);
-
-void startServer(double param, struct Queue* q);
-
-
 int finish = 0;     //Packets Assignment Finish Flag
 
 struct ThreadOneParams
@@ -27,7 +14,7 @@ struct ThreadOneParams
     double param;
     struct Queue* q1;
     struct Queue* q2;
-}
+};
 
 struct ThreadOneParams* newOneParams (int select, double param, struct Queue *q1, struct Queue *q2)
 {
@@ -42,22 +29,22 @@ struct ThreadTwoParams
 {
     struct Queue *q;
     double u;
-}
+};
 
 struct ThreadTwoParams* newTwoParams (double u, struct Queue *q)
 {
-    struct ThreadTwoParams *temp = (struct ThreadTwoParams)malloc(sizeof(struct ThreadTwoParams));
+    struct ThreadTwoParams *temp = (struct ThreadTwoParams*)malloc(sizeof(struct ThreadTwoParams));
     temp->u = u;
     temp->q = q;
 }
 
 struct Packet
 {
-    int key
+    int key;
     time_t start_time;
     time_t service_time;
     struct Packet *next;
-}
+};
 
 // A utility function to create a new packet. 
 struct Packet* newPacket(int k) 
@@ -72,7 +59,7 @@ struct Queue
 { 
     struct Packet *front, *rear;
     int size; 
-}
+};
   
 // A utility function to create an empty queue 
 struct Queue *createQueue() 
@@ -86,9 +73,9 @@ struct Queue *createQueue()
 // The function to add a key k to q 
 int enQueue(struct Queue *q, int k) 
 { 
-    if (q->size < MAX_QUEUE_lENGTH) 
+    if (q->size < 10) 
     {
-        struct Packet temp = newPacket(k);
+        struct Packet *temp = newPacket(k);
         temp->start_time = time(NULL);
 
         // If queue is empty, then new node is front and rear both 
@@ -112,13 +99,13 @@ int enQueue(struct Queue *q, int k)
 } 
 
 // Function to remove a key from given queue q 
-struct QNode *deQueue(struct Queue *q) 
+struct Packet *deQueue(struct Queue *q) 
 { 
     // If queue is empty, return NULL. 
     if (q->front == NULL) 
        return NULL; 
     // Store previous front and move front one node ahead 
-    struct QNode *temp = q->front; 
+    struct Packet *temp = q->front; 
     q->front = q->front->next; 
     q->size = q->size - 1; 
     // If front becomes NULL, then change rear also as NULL 
@@ -144,21 +131,21 @@ double exponGenerator(double myLamda)
 	return pv;
 }
 
-void *packetAssignment(struct ThreadOneParams *paramOne);
+void *packetAssignment(struct ThreadOneParams *paramOne)
 {
     double blockCounter = 0.0;
     double blockPro = 0.0;
     double queueLenCounter = 0.0;
     double averageQueueLen = 0.0;
     double waitingTimeCounter = 0.0;
-    double averageWaiting - 0.0;
+    double averageWaiting = 0.0;
     int i = 0;
     if (paramOne->select == 0) 
     {
         for (i = 0; i < 10000; i++)
         {
             double interval = exponGenerator(paramOne->param);
-            usleep(intercal * 1000000);
+            usleep(interval * 1000000);
             int res = randomSelection(paramOne->q1, paramOne->q2);
             if (res == 1) 
             {
@@ -171,7 +158,7 @@ void *packetAssignment(struct ThreadOneParams *paramOne);
         for (i = 0; i < 10000; i++)
         {
             double interval = exponGenerator(paramOne->param);
-            sleep(intercal);
+            sleep(interval);
             int res = minQueue(paramOne->q1, paramOne->q2);
             if (res == 1) 
             {
@@ -184,7 +171,7 @@ void *packetAssignment(struct ThreadOneParams *paramOne);
     return;
 }
 
-void *startServer(struct *ThreadTwoParams paramTwo) 
+void *startServer(struct ThreadTwoParams *paramTwo) 
 {
     while(1)
     {
@@ -194,15 +181,15 @@ void *startServer(struct *ThreadTwoParams paramTwo)
         }
         else
         {
-            double interval = exponGenerator(paramTwo->param);
+            double interval = exponGenerator(paramTwo->u);
             usleep(interval * 1000000);
-            struct Packet *k = deQueue(paramsTwo->q);
+            struct Packet *k = deQueue(paramTwo->q);
         }
     }
 }
 
 // Main function
-int main(int argc, char * agrv[]) 
+int main(int argc, char * argv[]) 
 {
     int i = 0;
     if (argc != 3)
@@ -212,7 +199,7 @@ int main(int argc, char * agrv[])
     }
     double param1 = atof(argv[1]);
     double param2 = atof(argv[2]);
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 1; i++)
     {
         struct Queue *q1 = createQueue();
         struct Queue *q2 = createQueue();
